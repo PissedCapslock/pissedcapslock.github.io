@@ -37,6 +37,10 @@ kbd[title], .key[title] {
     vertical-align: sub;
 }
 
+.social-media-list li {
+	display: inline
+}
+
 /* Dark style for display on light background. This is the default style. */
 kbd, kbd.dark, .dark-keys kbd, .key, .key.dark, .dark-keys .key {
 	background: rgb(250, 250, 250);
