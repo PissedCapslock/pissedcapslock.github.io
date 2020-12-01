@@ -185,6 +185,22 @@ export const Dropzone: React.FC<DropzoneProps> = (props) => {
 Dropzone.displayName = "FormikMaterialUIDropZone";
 
 ```
+which can be used in a Formik powered form as 
 
-
-
+```tsx
+<Field
+  component={Dropzone}
+  name="jsonFiles"
+  filesLimit={1}
+  acceptedFiles={[".geojson", "text/geojson"]}
+  maxFileSize={1024 * 1024 * 1024 * 2}
+  showFileNames
+  Icon={disabled ? NotInterestedIcon : CloudUploadIcon}
+  dropzoneText={
+    disabled
+      ? "File upload is currently disabled"
+      : "Drag and drop a GeoJSON file here or click to browse for a file."
+  }
+  disabled={disabled}
+/>
+```
