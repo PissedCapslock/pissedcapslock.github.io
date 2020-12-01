@@ -2,7 +2,8 @@
 layout: post
 title:  "Tuning the Material UI Dropzone component"
 date:   2020-11-27 22:16:57 +0100
-tags: react material-ui
+categories: react
+tags: react material-ui material-ui-dropzone dropzone
 ---
 
 When looking to add a file upload using drag-and-drop to a Material-UI based React website, Google points you to the [material-ui-dropzone](https://github.com/Yuvaleros/material-ui-dropzone) package. 
