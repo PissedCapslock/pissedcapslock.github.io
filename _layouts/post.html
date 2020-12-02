@@ -30,9 +30,12 @@ layout: default
       {%- endif -%}</p>
 
   </header>
+
   <div class="post-content e-content" itemprop="articleBody">
     {{ content }}
   </div>
+
+  {%- include share-buttons.html -%}
 
   {%- if site.disqus.shortname -%}
     {%- include disqus_comments.html -%}
