@@ -4,6 +4,5 @@
 
 layout: tags
 title: Tags
-icon: /assets/label.svg
 permalink: /tags-overview/
 ---
