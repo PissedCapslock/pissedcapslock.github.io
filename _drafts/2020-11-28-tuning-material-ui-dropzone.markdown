@@ -2,7 +2,6 @@
 layout: post
 title:  "Tuning the Material UI Dropzone component"
 date:   2020-11-27 22:16:57 +0100
-categories: react
 tags: react material-ui material-ui-dropzone dropzone
 ---
 
