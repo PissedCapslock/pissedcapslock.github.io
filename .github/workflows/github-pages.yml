@@ -3,7 +3,7 @@ name: Build and deploy Jekyll site to GitHub Pages
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   github-pages:
@@ -13,5 +13,3 @@ jobs:
       - uses: helaili/jekyll-action@2.0.4
         env:
           JEKYLL_PAT: ${{ secrets.JEKYLL_PAT }}
-        with:
-          target_branch: 'gh-pages'
