@@ -1,4 +1,4 @@
 ---
-layout: posts_by_tag
+layout: tags
 tag-name: material-ui-dropzone
 ---
