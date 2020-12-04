@@ -8,6 +8,13 @@
   <link rel="manifest" href="/site.webmanifest">
   {%- seo -%}
   <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
+
+  {% if page.image %}
+    <meta property="og:image" content="{{ page.image }}">
+  {% else %}
+    <meta property="og:image" content="/assets/logo.svg">
+  {% endif %}
+
   {%- feed_meta -%}
   {%- if jekyll.environment == 'production' and site.google_analytics -%}
     {%- include google-analytics.html -%}
