@@ -24,7 +24,7 @@ email: blog@robinstevens.eu
 description: >- # this means to ignore newlines until "baseurl:"
   Blog filled with random stuff encountered in the daily life of a software engineer.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://www.pissedcapslock.be" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://www.robinstevens.eu" # the base hostname & protocol for your site, e.g. http://example.com
 #twitter_username: jekyllrb
 minima:
   social_links:
