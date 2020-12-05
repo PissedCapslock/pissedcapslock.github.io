@@ -41,6 +41,7 @@ show_excerpts: true
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-sitemap
 
 # include the tags files
 collections:
