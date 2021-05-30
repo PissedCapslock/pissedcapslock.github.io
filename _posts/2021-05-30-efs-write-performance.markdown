@@ -5,18 +5,9 @@ date:   2021-05-30 17:00:00 +0100
 tags: aws efs
 ---
 
-<style type='text/css'>
-.float-container {
-}
-
-.float-child {
-    width: 50%;
-    float: left;
-}  
-</style>
-
 In our cloud setup at [xyzt.ai](https://xyzt.ai) we store our data on [Amazon's Elastic File System (EFS)](https://aws.amazon.com/efs/) 
 because we need a fast file system that can be shared between multiple machines or services.
+The write speeds that we observed were however far below what was advertised by Amazon.
 
 Amazon [says](https://docs.aws.amazon.com/efs/latest/ug/performance.html) their EFS system offers you:
 
@@ -254,3 +245,14 @@ From the performed experiments we can extract the following conclusions:
   * &gt; 1MB: 8 threads
 * When your files are over 100 MB in size, a single thread can reach the 100 MB/s writing speed limit.
   If you use multiple threads to write multiple files in parallel, the available speed will be divided equally over all threads.  
+
+
+<style type='text/css'>
+.float-container {
+}
+
+.float-child {
+    width: 50%;
+    float: left;
+}  
+</style>
