@@ -25,7 +25,7 @@ For those that don't want to go over all details, there is a [summary](#summary)
 For all these experiments, we've used the following setup
 
 * An empty EFS file system created with the default settings
-* An EC2 instance with 8 vCPU and 16 GB of RAM.
+* An EC2 instance with 4 vCPU and 16 GB of RAM (`t2.xlarge`).
   We didn't use a more powerful EC2 instance as our real setup runs on Fargate, and Fargate is at this time limited to an 8 vCPU machine.
 
 ## Large files
@@ -71,6 +71,13 @@ For large files (1GB), EFS behaves exactly as advertised and as expected:
 ## Small and medium files (single thread)
 
 When the files become smaller, it doesn't seem possible to obtain the advertised 100MB/s write speed when only using a single thread.
+
+That in itself is not unexpected.
+There is a certain overhead for each file operation, as documented by [Amazon](https://docs.aws.amazon.com/efs/latest/ug/performance-tips.html):
+
+*The distributed nature of Amazon EFS enables high levels of availability, durability, and scalability. This distributed architecture results in a small latency overhead for each file operation. Due to this per-operation latency, overall throughput generally increases as the average I/O size increases, because the overhead is amortized over a larger amount of data.*
+
+What is however unexpected is how severely this overhead seems to limit the writing speeds we can reach.
 
 <div id="mediumfiles_singlethread"></div>
 
@@ -190,7 +197,7 @@ We can reach up to 80 MB/s with 8 threads.
 After that, we can get it to around 90 MB/s by aggressively increasing the number of threads.
 But no matter how many threads we use, we couldn't reach the 100 MB/s.
 
-Note that our machine we were using only has 8 vCPU's.
+Note that our machine we were using only has 4 vCPU's.
 Perhaps that a beefier machine results in some better performance.
 
 As it is clear that beyond a certain number of threads the combined write speed over all threads reaches a plafond, we did one last experiment.
