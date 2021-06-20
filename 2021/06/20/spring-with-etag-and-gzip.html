@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
+  <link rel="manifest" href="/site.webmanifest"/><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Combining Etags with GZIP compression in Spring Boot | PissedCapslock’s blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Combining Etags with GZIP compression in Spring Boot" />
+<meta name="author" content="Robin Stevens" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Adding Etags to the responses in a Spring Boot application is easy. Using GZIP to compress the responses in a Spring Boot application is easy as well. There are plenty of blog posts available describing how to achieve either of them." />
+<meta property="og:description" content="Adding Etags to the responses in a Spring Boot application is easy. Using GZIP to compress the responses in a Spring Boot application is easy as well. There are plenty of blog posts available describing how to achieve either of them." />
+<link rel="canonical" href="https://www.robinstevens.eu/2021/06/20/spring-with-etag-and-gzip.html" />
+<meta property="og:url" content="https://www.robinstevens.eu/2021/06/20/spring-with-etag-and-gzip.html" />
+<meta property="og:site_name" content="PissedCapslock’s blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-06-20T20:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Combining Etags with GZIP compression in Spring Boot" />
+<script type="application/ld+json">
+{"datePublished":"2021-06-20T20:00:00+00:00","description":"Adding Etags to the responses in a Spring Boot application is easy. Using GZIP to compress the responses in a Spring Boot application is easy as well. There are plenty of blog posts available describing how to achieve either of them.","url":"https://www.robinstevens.eu/2021/06/20/spring-with-etag-and-gzip.html","@type":"BlogPosting","dateModified":"2021-06-20T20:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.robinstevens.eu/2021/06/20/spring-with-etag-and-gzip.html"},"author":{"@type":"Person","name":"Robin Stevens"},"headline":"Combining Etags with GZIP compression in Spring Boot","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href='/assets/main.css'/><link type="application/atom+xml" rel="alternate" href="https://www.robinstevens.eu/feed.xml" title="PissedCapslock's blog" /><meta name="google-site-verification" content="0oGCVSIBwiEz1Y6cIj8DK0KmXMt-YJg7XvU5DZ-29bk" />
+
+  <!-- RoughViz for handdrawn charts-->
+  <script src="https://unpkg.com/rough-viz@1.0.6"></script>
+</head><body><header class="site-header" role="banner">
+
+    <div class="wrapper">
+      <a class="site-title" rel="author" href="/"><span class="site-title-emoji">&#x1f92c;</span><kbd>&#x21ea;</kbd></a>
+      
+      <nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+        <div class="trigger">
+          <a class="page-link-icon" href="/about">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M13,8A4,4 0 0,1 9,12A4,4 0 0,1 5,8A4,4 0 0,1 9,4A4,4 0 0,1 13,8M17,18V20H1V18C1,15.79 4.58,14 9,14C13.42,14 17,15.79 17,18M20.5,14.5V16H19V14.5H20.5M18.5,9.5H17V9A3,3 0 0,1 20,6A3,3 0 0,1 23,9C23,9.97 22.5,10.88 21.71,11.41L21.41,11.6C20.84,12 20.5,12.61 20.5,13.3V13.5H19V13.3C19,12.11 19.6,11 20.59,10.35L20.88,10.16C21.27,9.9 21.5,9.47 21.5,9A1.5,1.5 0 0,0 20,7.5A1.5,1.5 0 0,0 18.5,9V9.5Z" />
+            </svg>
+          </a>
+          <a class="page-link-icon" href="/tags-overview">
+            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24">
+              <path d="M21.4 11.6L12.4 2.6C12 2.2 11.5 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.5 2.2 12 2.6 12.4L11.6 21.4C12 21.8 12.5 22 13 22C13.5 22 14 21.8 14.4 21.4L21.4 14.4C21.8 14 22 13.5 22 13C22 12.5 21.8 12 21.4 11.6M13 20L4 11V4H11L20 13M6.5 5C7.3 5 8 5.7 8 6.5S7.3 8 6.5 8 5 7.3 5 6.5 5.7 5 6.5 5M10.1 8.9L11.5 7.5L17 13L15.6 14.4L10.1 8.9M7.6 11.4L9 10L13 14L11.6 15.4L7.6 11.4Z" />
+            </svg>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </header><main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Combining Etags with GZIP compression in Spring Boot</h1>
+    
+    <div class="post-tags">
+      
+      <svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M21.4 11.6L12.4 2.6C12 2.2 11.5 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.5 2.2 12 2.6 12.4L11.6 21.4C12 21.8 12.5 22 13 22C13.5 22 14 21.8 14.4 21.4L21.4 14.4C21.8 14 22 13.5 22 13C22 12.5 21.8 12 21.4 11.6M13 20L4 11V4H11L20 13M6.5 5C7.3 5 8 5.7 8 6.5S7.3 8 6.5 8 5 7.3 5 6.5 5.7 5 6.5 5M10.1 8.9L11.5 7.5L17 13L15.6 14.4L10.1 8.9M7.6 11.4L9 10L13 14L11.6 15.4L7.6 11.4Z" />
+          </svg>
+          <a href="/tags/etag">
+            etag
+          </a><svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M21.4 11.6L12.4 2.6C12 2.2 11.5 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.5 2.2 12 2.6 12.4L11.6 21.4C12 21.8 12.5 22 13 22C13.5 22 14 21.8 14.4 21.4L21.4 14.4C21.8 14 22 13.5 22 13C22 12.5 21.8 12 21.4 11.6M13 20L4 11V4H11L20 13M6.5 5C7.3 5 8 5.7 8 6.5S7.3 8 6.5 8 5 7.3 5 6.5 5.7 5 6.5 5M10.1 8.9L11.5 7.5L17 13L15.6 14.4L10.1 8.9M7.6 11.4L9 10L13 14L11.6 15.4L7.6 11.4Z" />
+          </svg>
+          <a href="/tags/gzip">
+            gzip
+          </a><svg class="svg-icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M21.4 11.6L12.4 2.6C12 2.2 11.5 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.5 2.2 12 2.6 12.4L11.6 21.4C12 21.8 12.5 22 13 22C13.5 22 14 21.8 14.4 21.4L21.4 14.4C21.8 14 22 13.5 22 13C22 12.5 21.8 12 21.4 11.6M13 20L4 11V4H11L20 13M6.5 5C7.3 5 8 5.7 8 6.5S7.3 8 6.5 8 5 7.3 5 6.5 5.7 5 6.5 5M10.1 8.9L11.5 7.5L17 13L15.6 14.4L10.1 8.9M7.6 11.4L9 10L13 14L11.6 15.4L7.6 11.4Z" />
+          </svg>
+          <a href="/tags/spring">
+            spring
+          </a>
+    </div>
+    
+    <p class="post-meta">
+      <time class="dt-published" datetime="2021-06-20T20:00:00+00:00" itemprop="datePublished">Jun 20, 2021
+      </time></p>
+
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Adding Etags to the responses in a Spring Boot application is easy. 
+Using GZIP to compress the responses in a Spring Boot application is easy as well.
+There are plenty of blog posts available describing how to achieve either of them.</p>
+
+<p>However, when I tried to combine them both the GZIP compression stopped working until I tweaked some settings.</p>
+
+<p>In this post, I’ll very briefly describe how to active GZIP and Etag, and then discuss in a bit more detail why and how you need to change the defaults to get them to play nice together.</p>
+
+<h2 id="activating-gzip-compression">Activating GZIP compression</h2>
+
+<p>You can configure the standard Tomcat webserver in Spring Boot to GZIP the responses by adding the following to your YML properties file:</p>
+
+<pre><code class="language-YAML"> server:
+  compression:
+    enabled: true
+</code></pre>
+
+<h2 id="activating-etags">Activating ETags</h2>
+
+<p>Spring already has a filter that adds Etags to your responses. All you need to do is create a <code class="language-plaintext highlighter-rouge">Bean</code> for it:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Bean</span>
+<span class="kd">public</span> <span class="nc">Filter</span> <span class="nf">shallowEtagHeaderFilter</span><span class="o">(){</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="nf">ShallowEtagHeaderFilter</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This will add a strong Etag header to your response.</p>
+
+<p>The Etag is calculated from a hash based on the content of your response. 
+As such, you need to make sure that your responses are deterministic.</p>
+
+<p>In a first attempt of adding Etags to my responses for a JSON API, I always got a different Etag for the same request.
+Turns out that Jackson used a random ordering for the properties when converting my Java objects to JSON.</p>
+
+<p>One possible solution for this is to tell Jackson to use a fixed, alphabetical ordering:</p>
+
+<pre><code class="language-YAML">jackson:
+  mapper:
+    sort_properties_alphabetically: true
+</code></pre>
+
+<h2 id="combining-etags-with-gzip-compression">Combining Etags with GZIP compression</h2>
+
+<p>Once you’ve configured Spring to add Etags to the responses, the GZIP compression for those responses will stop to work.</p>
+
+<p>The reason is that the specification of a strong Etag says that a strong Etag is to be calculated not only over the body of the response, but also over some headers.
+Including the header that specifies the encoding of the response.</p>
+
+<p>As such, when Spring sends the response (including the stron Etag header) to Tomcat, the Tomcat server refuses to GZIP the response.
+Compressing the response would mean that the encoding header is adjusted, hence Tomcat would suddenly become response to re-calculate the Etag.
+And Tomcat doesn’t know how to do that.</p>
+
+<p>You can see this in the source code (relevant snippet copied from <a href="https://github.com/apache/tomcat/blob/main/java/org/apache/coyote/CompressionConfig.java"><code class="language-plaintext highlighter-rouge">org.apache.coyote.CompressionConfig#useCompression</code></a>):</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Check if the resource has a strong ETag</span>
+<span class="nc">String</span> <span class="n">eTag</span> <span class="o">=</span> <span class="n">responseHeaders</span><span class="o">.</span><span class="na">getHeader</span><span class="o">(</span><span class="s">"ETag"</span><span class="o">);</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">eTag</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">eTag</span><span class="o">.</span><span class="na">trim</span><span class="o">().</span><span class="na">startsWith</span><span class="o">(</span><span class="s">"W/"</span><span class="o">))</span> <span class="o">{</span>
+    <span class="c1">// Has an ETag that doesn't start with "W/..." so it must be a</span>
+    <span class="c1">// strong ETag</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The discussion whether this behavior in Tomcat is wanted or not can be found in <a href="https://bz.apache.org/bugzilla/show_bug.cgi?id=63932">their bugtracker</a>.</p>
+
+<p>One possible solution for this is to switch to weak Etags by calling the corresponding setter on the <code class="language-plaintext highlighter-rouge">ShallowEtagHeaderFilter</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Bean</span>
+<span class="kd">public</span> <span class="nc">Filter</span> <span class="nf">shallowEtagHeaderFilter</span><span class="o">(){</span>
+  <span class="nc">ShallowEtagHeaderFilter</span> <span class="n">filter</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ShallowEtagHeaderFilter</span><span class="o">();</span>
+  <span class="n">filter</span><span class="o">.</span><span class="na">setWriteWeakETag</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+  <span class="k">return</span> <span class="n">filter</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="summary">Summary</h2>
+
+<p>In summary, in order to combine ETags with GZIP compression in Spring using the embedded Tomcat webserver, you’ll need to:</p>
+
+<ul>
+  <li>Enable GZIP compression through the <code class="language-plaintext highlighter-rouge">server.compression.enabled</code> property</li>
+  <li>Add a <code class="language-plaintext highlighter-rouge">ShallowEtagHeaderFilter</code></li>
+  <li>Use the <code class="language-plaintext highlighter-rouge">ShallowEtagHeaderFilter#setWriteWeakEtag</code> method to switch to weak Etags so that Tomcat doesn’t refuse to GZIP your response</li>
+</ul>
+
+  </div>
+
+<style>
+#share-buttons-panel{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+#share-buttons {display: inline-block; vertical-align: middle; }
+#share-buttons:after {content: ""; display: block; clear: both;}
+#share-buttons > div, #share-buttons > a {
+    position: relative;
+    text-align: left; 
+    height: 36px; 
+    width: 32px; 
+    float: left; 
+    text-align: center;
+}
+
+#share-buttons > a > svg {height: 16px; fill: #d5d5d5; margin-top: 10px;}
+#share-buttons > a:hover {cursor: pointer;}
+#share-buttons > a.facebook:hover > svg {fill: #3B5998;}
+#share-buttons > a.twitter:hover > svg {fill: #55ACEE;}
+#share-buttons > a.linkedin:hover > svg {fill: #0077b5;}
+#share-buttons > a.reddit:hover > svg {fill: #FF4500;}
+#share-buttons > a.hackernews:hover > svg {fill: #F0652F;}
+#share-buttons > a.mail:hover > svg {fill: #7D7D7D;}
+#share-buttons > a.mail:hover > svg {fill: #7D7D7D;}
+#share-buttons > a.facebook > svg {height: 18px; margin-top: 9px;}
+#share-buttons > a.twitter > svg {height: 20px; margin-top: 8px;}
+#share-buttons > a.linkedin > svg {height: 19px; margin-top: 7px;}
+#share-buttons > a.reddit > svg {height: 19px; margin-top: 9px;}
+#share-buttons > a.hackernews > svg {height: 19px; margin-top: 9px;}
+#share-buttons > a.mail > svg {height: 14px; margin-top: 11px;}
+</style>
+
+
+<div id="share-buttons-panel">
+<span style="color: silver;font-size: 0.75em;">Share:</span>
+<div id="share-buttons">
+    <a class="facebook" title="Share this on Facebook" href="https://www.facebook.com/sharer.php?u=https://www.robinstevens.eu/2021/06/20/spring-with-etag-and-gzip.html" target="_blank">
+      <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1343 12v264h-157q-86 0-116 36t-30 108v189h293l-39 296h-254v759h-306v-759h-255v-296h255v-218q0-186 104-288.5t277-102.5q147 0 228 12z"/>
+      </svg>
+    </a>
+    <a class="twitter" title="Share this on Twitter" href="https://twitter.com/intent/tweet?url=https://www.robinstevens.eu/2021/06/20/spring-with-etag-and-gzip.html&text=Combining%20Etags%20with%20GZIP%20compression%20in%20Spring%20Boot" target="_blank">
+      <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1684 408q-67 98-162 167 1 14 1 42 0 130-38 259.5t-115.5 248.5-184.5 210.5-258 146-323 54.5q-271 0-496-145 35 4 78 4 225 0 401-138-105-2-188-64.5t-114-159.5q33 5 61 5 43 0 85-11-112-23-185.5-111.5t-73.5-205.5v-4q68 38 146 41-66-44-105-115t-39-154q0-88 44-163 121 149 294.5 238.5t371.5 99.5q-8-38-8-74 0-134 94.5-228.5t228.5-94.5q140 0 236 102 109-21 205-78-37 115-142 178 93-10 186-50z"/>
+      </svg>
+    </a>
+    <a class="linkedin" title="Share this on Linkedin" href="https://www.linkedin.com/sharing/share-offsite/?url=https://www.robinstevens.eu/2021/06/20/spring-with-etag-and-gzip.html" target="_blank">
+      <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+        <path d="M477 625v991h-330v-991h330zm21-306q1 73-50.5 122t-135.5 49h-2q-82 0-132-49t-50-122q0-74 51.5-122.5t134.5-48.5 133 48.5 51 122.5zm1166 729v568h-329v-530q0-105-40.5-164.5t-126.5-59.5q-63 0-105.5 34.5t-63.5 85.5q-11 30-11 81v553h-329q2-399 2-647t-1-296l-1-48h329v144h-2q20-32 41-56t56.5-52 87-43.5 114.5-15.5q171 0 275 113.5t104 332.5z"/>
+      </svg>
+    </a>
+    <a class="reddit" title="Share this on Reddit" href="http://www.reddit.com/submit?url=https://www.robinstevens.eu/2021/06/20/spring-with-etag-and-gzip.html&title=Combining%20Etags%20with%20GZIP%20compression%20in%20Spring%20Boot" target="_blank">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M14.5 15.41C14.58 15.5 14.58 15.69 14.5 15.8C13.77 16.5 12.41 16.56 12 16.56C11.61 16.56 10.25 16.5 9.54 15.8C9.44 15.69 9.44 15.5 9.54 15.41C9.65 15.31 9.82 15.31 9.92 15.41C10.38 15.87 11.33 16 12 16C12.69 16 13.66 15.87 14.1 15.41C14.21 15.31 14.38 15.31 14.5 15.41M10.75 13.04C10.75 12.47 10.28 12 9.71 12C9.14 12 8.67 12.47 8.67 13.04C8.67 13.61 9.14 14.09 9.71 14.08C10.28 14.08 10.75 13.61 10.75 13.04M14.29 12C13.72 12 13.25 12.5 13.25 13.05S13.72 14.09 14.29 14.09C14.86 14.09 15.33 13.61 15.33 13.05C15.33 12.5 14.86 12 14.29 12M22 12C22 17.5 17.5 22 12 22S2 17.5 2 12C2 6.5 6.5 2 12 2S22 6.5 22 12M18.67 12C18.67 11.19 18 10.54 17.22 10.54C16.82 10.54 16.46 10.7 16.2 10.95C15.2 10.23 13.83 9.77 12.3 9.71L12.97 6.58L15.14 7.05C15.16 7.6 15.62 8.04 16.18 8.04C16.75 8.04 17.22 7.57 17.22 7C17.22 6.43 16.75 5.96 16.18 5.96C15.77 5.96 15.41 6.2 15.25 6.55L12.82 6.03C12.75 6 12.68 6.03 12.63 6.07C12.57 6.11 12.54 6.17 12.53 6.24L11.79 9.72C10.24 9.77 8.84 10.23 7.82 10.96C7.56 10.71 7.2 10.56 6.81 10.56C6 10.56 5.35 11.21 5.35 12C5.35 12.61 5.71 13.11 6.21 13.34C6.19 13.5 6.18 13.62 6.18 13.78C6.18 16 8.79 17.85 12 17.85C15.23 17.85 17.85 16.03 17.85 13.78C17.85 13.64 17.84 13.5 17.81 13.34C18.31 13.11 18.67 12.6 18.67 12Z" />
+      </svg>
+    </a>
+    <a class="hackernews" title="Share this on HackerNews" href="http://news.ycombinator.com/submitlink?u=https://www.robinstevens.eu/2021/06/20/spring-with-etag-and-gzip.html&t=Combining%20Etags%20with%20GZIP%20compression%20in%20Spring%20Boot" target="_blank">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2,2H22V22H2V2M11.25,17.5H12.75V13.06L16,7H14.5L12,11.66L9.5,7H8L11.25,13.06V17.5Z" />
+      </svg>
+    </a>
+    <a class="mail" title="Share this through Email" href="mailto:?&body=https://www.robinstevens.eu/2021/06/20/spring-with-etag-and-gzip.html">
+      <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1792 710v794q0 66-47 113t-113 47h-1472q-66 0-113-47t-47-113v-794q44 49 101 87 362 246 497 345 57 42 92.5 65.5t94.5 48 110 24.5h2q51 0 110-24.5t94.5-48 92.5-65.5q170-123 498-345 57-39 100-87zm0-294q0 79-49 151t-122 123q-376 261-468 325-10 7-42.5 30.5t-54 38-52 32.5-57.5 27-50 9h-2q-23 0-50-9t-57.5-27-52-32.5-54-38-42.5-30.5q-91-64-262-182.5t-205-142.5q-62-42-117-115.5t-55-136.5q0-78 41.5-130t118.5-52h1472q65 0 112.5 47t47.5 113z"/>
+      </svg>
+    </a>
+</div>
+</div><a class="u-url" href="/2021/06/20/spring-with-etag-and-gzip.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="socials"><ul class="social-media-list"><li><a rel="me" href="mailto:blog@robinstevens.eu"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#email"></use></svg></a></li><li><a rel="me" href="https://github.com/PissedCapslock" title="PissedCapslock"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://stackoverflow.com/users/1076463" title="1076463"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#stackoverflow"></use></svg></a></li><li><a rel="me" href="https://www.linkedin.com/in/robin-stevens-2177904" title="robin-stevens-2177904"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg></a></li><li><a href="/feed.xml"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#rss"></use></svg></a></li></ul></div>
+</footer></body>
+
+</html>
